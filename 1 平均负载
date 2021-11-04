@@ -1,0 +1,32 @@
+---
+title: 什么是平均负载？
+categories:
+  - Linux性能优化
+toc: true 
+---
+
+- 平均负载
+	- uptime:平均负载是指单位时间内，系统处于可运行状态和不可中断状态的平均进程数， 也就是平均活跃进程数.
+  - 可运行状态（Running/Runnable）的进程：正在使用 CPU 或者正在等待 CPU 的进程
+  - 不可中断状态（Disk Sleep）的进程：eg:正在写数据的进程，等待硬件设备的 I/O 响应
+    系统对进程和硬件设备的一种保护机制
+  - 平均活跃进程数——单位时间内的活跃进程数 ，三个数字分别代表1 5 15分钟的平均负载
+    ![image-20211011200707378](C:\Users\46304\AppData\Roaming\Typora\typora-user-images\image-20211011200707378.png)
+    - 当为2时，对于2核CPU，刚好全被占用，对于4核数，空闲50%，对于1核，一半进程分配不到CPU
+    - 查看核数：grep 'model name' /proc/cpuinfo | wc -l，平均负载高于 CPU 数量 70% 的时候应该排查问题了
+- 平均负载和CPU使用率
+  平均负载：不仅包括了正在使用 CPU 的进程，还包括等待 CPU 和等待 I/O 的进程
+  - I/O 密集型进程，等待 I/O 也会导致平均负载升高，但 CPU 使用率不一定很高；
+- 工具：
+  - stress：压力测试
+    - stress --cpu 1 --timeout 600  模拟1个CPU100%
+    -  stress -i 1 --timeout 600  模拟 I/O 压力，即不停地执行 sync
+    - stress -c 8 --timeout 600   模拟8 个进程：
+  - sysstat
+    - mpstat：CPU分析工具
+      - mpstat -P ALL 5 1 显示所有 CPU 的指标，并在间隔 5 秒输出一组数据
+    - pidstat：进程分析工具
+      - pidstat -u 5 1 隔 5 秒后输出一组进程数据
+      - 进程的io情况，比如可以试试pidstat -d
+  - ![image-20211012012736616](C:\Users\46304\AppData\Roaming\Typora\typora-user-images\image-20211012012736616.png)
+
